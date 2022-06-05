@@ -75,7 +75,7 @@ h1{
   margin: 5px;
   position: relative;
   transform: scale(1);
-  transform: .6s;
+  transition: .8s;
   transform-style: preserve-3d;
 
 }

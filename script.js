@@ -28,11 +28,11 @@ let locked = false
 let firstClick, secondClick
 let hitCounter = 0
 let attemptCount = 0
-let rangeTime,timerlimiFlip,limitCard
+let rangeTime,timerlimitFlip,limitCard
 let gameGrid
 let timerLimit
 
-
+const widthStyle = document.querySelector('.memory-game')
 
 const currentTimer = new Timer('#timer')
 
@@ -110,15 +110,12 @@ function unFlipCard(){
     firstClick = null
     secondClick = null
 
-  }, timerlimiFlip)
+  }, timerlimitFlip)
 }
 
 function removeClick(){
 
   hitCounter++
-  
-  console.log(gameGrid.length/2)
-
   if(hitCounter == gameGrid.length/2){
     finalGame()
   }
@@ -138,27 +135,33 @@ function configure(){
     case 'facil':
       rangeTime = 3000
       limitCard = 6
-      timerlimiFlip = 800 //tempo de espera para virar o card
+      timerlimitFlip = 800 //tempo de espera para virar o card
       timerLimit = 10
+      widthStyle.style.width='540px'
       break
 
       case 'medio':
       rangeTime = 6000
       limitCard = 12
-      timerlimiFlip = 1000
+      timerlimitFlip = 1000
+      timerLimit = 10
+      widthStyle.style.width='940px'
       break
 
       case 'dificil':
       rangeTime = 7000
       limitCard = 15
-      timerlimiFlip = 1700
+      timerlimitFlip = 1300
+      timerLimit = 20
       break
 
       case 'expert':
       rangeTime = 10000
       limitCard = 20
-      timerlimitFlip= 1900
+      timerlimitFlip= 1200
+      timerLimit = 30
       break
+
     default:
   }
   creatHtml()
@@ -172,9 +175,11 @@ function reset(){
   let cleamHtml = document.querySelector('#section-game')
   cleamHtml.innerText = ""
 
+  widthStyle.style.width='1100px'
+
   attemptCount = 0
   hitCounter = 0
-  timerlimiFlip = 0
+  timerlimitFlip = 0
   firstClick,secondClick = null
 
 }
@@ -186,8 +191,15 @@ function finalGame(){
 
 }
 
-function closeModal(){
-  document.getElementById('modal-final').classList.remove("show-modal")
+function closeModal(opc){
+  if(opc == 1){
+    document.getElementById('modal-final').classList.remove("show-modal")
+  }
+  if(opc == 2){
+    document.getElementById('modal-game-over').classList.remove("show-modal")
+  }
+  
+  reset()
 
 }
 
