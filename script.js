@@ -44,8 +44,9 @@ const arrayTeste = [
 
 let locked = false
 let firstClick, secondClick
-let matchs = 0
-let attemptCount =0
+let hitCounter = 0
+let attemptCount = 0
+let rangeTime,timerlimit,limitCard
 
 const currentTimer = new Timer('#timer')
 
@@ -116,7 +117,7 @@ function unFlipCard(){
 
 function removeClick(){
 
-  matchs++
+  hitCounter++
 
   firstClick.removeEventListener('click', flipCard)
   secondClick.removeEventListener('click', flipCard)
@@ -126,6 +127,40 @@ function removeClick(){
   secondClick = null
 
 }
+
+function configure(){
+
+  let value = selectText.options[selectText.selectedIndex].value;
+
+  switch(value){
+    case 'facil':
+      rangeTime = 3000
+      limitCard = 2
+      timerlimit = 90
+      break
+
+      case 'medio':
+      rangeTime = 6000
+      limitCard = 2
+      timerlimit = 120
+      break
+
+      case 'dificil':
+      rangeTime = 7000
+      limitCard = 2
+      timerlimit = 180
+      break
+
+      case 'expert':
+      rangeTime = 10000
+      limitCard = 15
+      timerlimit = 230
+      break
+    default:
+  }
+}
+
+
 
 function Timer(e){
   this.element = e
