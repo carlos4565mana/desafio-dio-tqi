@@ -14,14 +14,31 @@
   <main>
     <div class="count-container">
 
-      <button class="bt-iniciar" onclick="creatHtml()">Iniciar</button>
+      <button class="bt-iniciar" onclick="configure()">Iniciar</button>
       <div class="select-nivel">
         <select class="select-dificudade" name="dificuldade" id="dificuldade">
           <option value="facil">Fácil</option>
-          <option value="médio">Médio</option>
+          <option value="medio">Médio</option>
           <option value="dificil">Dificil</option>
           <option value="expert">Expert</option>
         </select>
+      </div>
+
+      <div class="modal " id="modal-game-over">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">
+                &times;
+            </span>
+            <h2>Game Over !!!</h2>
+        </div>
+      </div>
+
+      <div class="modal" id="modal-final">
+        <div class="modal-content">
+          <span class="close-button" onclick="closeModal()">&times;</span>
+          <p>Parabens!! Voce Chegou ao Final.</p>
+
+        </div>
       </div>
 
       <span onclick="reset()" class="reset">Reset <i class="fas fa-sync"></i></span>  

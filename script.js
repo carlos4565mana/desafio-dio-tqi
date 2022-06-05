@@ -24,36 +24,34 @@ const cardsArray= [
 ]
 
 
-const arrayTeste = [
-  { name: 'vue',src: './imagens/vue.svg', alt: 'vue',},
-  { name: 'angular',src: './imagens/angular.svg', alt: 'Angular',},
-  { name: 'react',src: './imagens/react.svg', alt: 'React',},
-  { name: 'diversas',src: './imagens/diversas.jpg', alt: 'Diversas',},
-  { name: 'electron', src: './imagens/electron.svg', alt: 'Electron',},
-  { name: 'dio', src: './imagens/dio.jpg', alt: 'Dio',},
-  { name: 'git', src: './imagens/git.svg', alt: 'Github' },
-  { name: 'vue',src: './imagens/vue.svg', alt: 'vue',},
-  { name: 'angular',src: './imagens/angular.svg', alt: 'Angular',},
-  { name: 'react',src: './imagens/react.svg', alt: 'React',},
-  { name: 'diversas',src: './imagens/diversas.jpg', alt: 'Diversas',},
-  { name: 'electron', src: './imagens/electron.svg', alt: 'Electron',},
-  { name: 'dio', src: './imagens/dio.jpg', alt: 'Dio',},
-  { name: 'git', src: './imagens/git.svg', alt: 'Github' },
-
-]
-
 let locked = false
 let firstClick, secondClick
 let hitCounter = 0
 let attemptCount = 0
-let rangeTime,timerlimit,limitCard
+let rangeTime,timerlimiFlip,limitCard
+let gameGrid
+let timerLimit
+
+
 
 const currentTimer = new Timer('#timer')
 
 const grid = document.querySelector('#section-game')
 
+let selectText = document.querySelector('#dificuldade')
+
+let button = document.querySelector('.bt-iniciar')
+
 function creatHtml(){
-  const createHtml = arrayTeste.forEach(
+
+  button.disabled = true
+
+  var game = cardsArray.slice(0, limitCard)
+  gameGrid = game.concat(game).sort(() => 0.5 - Math.random());
+ 
+
+
+  gameGrid.forEach(
     (item) => {
       const card = document.createElement('div')
       card.classList.add('memory-card')
@@ -112,13 +110,18 @@ function unFlipCard(){
     firstClick = null
     secondClick = null
 
-  },500)
+  }, timerlimiFlip)
 }
 
 function removeClick(){
 
   hitCounter++
+  
+  console.log(gameGrid.length/2)
 
+  if(hitCounter == gameGrid.length/2){
+    finalGame()
+  }
   firstClick.removeEventListener('click', flipCard)
   secondClick.removeEventListener('click', flipCard)
 
@@ -131,35 +134,72 @@ function removeClick(){
 function configure(){
 
   let value = selectText.options[selectText.selectedIndex].value;
-
   switch(value){
     case 'facil':
       rangeTime = 3000
-      limitCard = 2
-      timerlimit = 90
+      limitCard = 6
+      timerlimiFlip = 800 //tempo de espera para virar o card
+      timerLimit = 10
       break
 
       case 'medio':
       rangeTime = 6000
-      limitCard = 2
-      timerlimit = 120
+      limitCard = 12
+      timerlimiFlip = 1000
       break
 
       case 'dificil':
       rangeTime = 7000
-      limitCard = 2
-      timerlimit = 180
+      limitCard = 15
+      timerlimiFlip = 1700
       break
 
       case 'expert':
       rangeTime = 10000
-      limitCard = 15
-      timerlimit = 230
+      limitCard = 20
+      timerlimitFlip= 1900
       break
     default:
   }
+  creatHtml()
 }
 
+function reset(){
+  currentTimer.stop()
+
+  button.disabled = false
+
+  let cleamHtml = document.querySelector('#section-game')
+  cleamHtml.innerText = ""
+
+  attemptCount = 0
+  hitCounter = 0
+  timerlimiFlip = 0
+  firstClick,secondClick = null
+
+}
+
+function finalGame(){
+  
+  document.getElementById('modal-final').classList.add("show-modal")
+  currentTimer.stop()
+
+}
+
+function closeModal(){
+  document.getElementById('modal-final').classList.remove("show-modal")
+
+}
+
+function gameOver(){
+  document.getElementById('modal-game-over').classList.add("show-modal")
+  currentTimer.stop()
+}
+
+function checkTimerLimit(){
+  if(currentTimer.time >= timerLimit)gameOver()
+
+}
 
 
 function Timer(e){
@@ -177,6 +217,7 @@ function Timer(e){
       (minutes < 10 ? '0' : '') +minutes+
       ':'+
       (seconds < 10 ? '0' : '')+seconds
+      checkTimerLimit()
 
     }, 1000)
   }
