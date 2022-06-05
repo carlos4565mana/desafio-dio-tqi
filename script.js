@@ -23,13 +23,36 @@ const cardsArray= [
 
 ]
 
+
+const arrayTeste = [
+  { name: 'vue',src: './imagens/vue.svg', alt: 'vue',},
+  { name: 'angular',src: './imagens/angular.svg', alt: 'Angular',},
+  { name: 'react',src: './imagens/react.svg', alt: 'React',},
+  { name: 'diversas',src: './imagens/diversas.jpg', alt: 'Diversas',},
+  { name: 'electron', src: './imagens/electron.svg', alt: 'Electron',},
+  { name: 'dio', src: './imagens/dio.jpg', alt: 'Dio',},
+  { name: 'git', src: './imagens/git.svg', alt: 'Github' },
+  { name: 'vue',src: './imagens/vue.svg', alt: 'vue',},
+  { name: 'angular',src: './imagens/angular.svg', alt: 'Angular',},
+  { name: 'react',src: './imagens/react.svg', alt: 'React',},
+  { name: 'diversas',src: './imagens/diversas.jpg', alt: 'Diversas',},
+  { name: 'electron', src: './imagens/electron.svg', alt: 'Electron',},
+  { name: 'dio', src: './imagens/dio.jpg', alt: 'Dio',},
+  { name: 'git', src: './imagens/git.svg', alt: 'Github' },
+
+]
+
 let locked = false
 let firstClick, secondClick
+let matchs = 0
+let attemptCount =0
+
+const currentTimer = new Timer('#timer')
 
 const grid = document.querySelector('#section-game')
 
 function creatHtml(){
-  const createHtml = cardsArray.forEach(
+  const createHtml = arrayTeste.forEach(
     (item) => {
       const card = document.createElement('div')
       card.classList.add('memory-card')
@@ -54,9 +77,13 @@ function creatHtml(){
   const cards = document.querySelectorAll('.memory-card')
   cards.forEach(card => card.addEventListener('click',flipCard))
 
+  currentTimer.start()
+
 }
 
 function flipCard(){
+  attemptCount++
+
   if(locked)return false
   this.classList.add('flip')
   if(!firstClick){
@@ -71,7 +98,6 @@ function flipCard(){
 function checkMatch(){
   let isMatch = firstClick.dataset.name === secondClick.dataset.name ? true : false
   isMatch ? removeClick() : unFlipCard()
-
 }
 
 function unFlipCard(){
@@ -90,9 +116,39 @@ function unFlipCard(){
 
 function removeClick(){
 
+  matchs++
+
   firstClick.removeEventListener('click', flipCard)
   secondClick.removeEventListener('click', flipCard)
 
-  [locked,firstClick,secondClick] = [false,null,null]
+  locked = false
+  firstClick = null
+  secondClick = null
 
+}
+
+function Timer(e){
+  this.element = e
+  this.time = 0
+  this.control = null
+  
+
+  this.start = () => {
+    this.control = setInterval(() => {
+      this.time++
+      const minutes = Math.trunc(this.time/60)
+      const seconds = this.time % 60
+      document.querySelector(this.element).innerHTML = 
+      (minutes < 10 ? '0' : '') +minutes+
+      ':'+
+      (seconds < 10 ? '0' : '')+seconds
+
+    }, 1000)
+  }
+
+  this.stop = () => {
+    clearInterval(this.control)
+    this.control = null
+    this.time = 0
+  }
 }
