@@ -37,6 +37,7 @@ const widthStyle = document.querySelector('.memory-game')
 const currentTimer = new Timer('#timer')
 
 const grid = document.querySelector('#section-game')
+const timerStyle = document.querySelector('#timer')
 
 let selectText = document.querySelector('#dificuldade')
 
@@ -49,8 +50,6 @@ function creatHtml(){
   var game = cardsArray.slice(0, limitCard)
   gameGrid = game.concat(game).sort(() => 0.5 - Math.random());
  
-
-
   gameGrid.forEach(
     (item) => {
       const card = document.createElement('div')
@@ -72,12 +71,8 @@ function creatHtml(){
       card.appendChild(cardBack)
     }
   )
-
   const cards = document.querySelectorAll('.memory-card')
-  cards.forEach(card => card.addEventListener('click',flipCard))
-
-  currentTimer.start()
-
+  setTimeout(() => flipUnflipAllCards(cards), 1200)
 }
 
 function flipCard(){
@@ -94,11 +89,6 @@ function flipCard(){
   checkMatch()
 }
 
-function checkMatch(){
-  let isMatch = firstClick.dataset.name === secondClick.dataset.name ? true : false
-  isMatch ? removeClick() : unFlipCard()
-}
-
 function unFlipCard(){
   locked = true
   setTimeout(() => {
@@ -111,6 +101,23 @@ function unFlipCard(){
     secondClick = null
 
   }, timerlimitFlip)
+}
+
+function flipUnflipAllCards(cards){
+  cards.forEach(card => card.classList.add('flip'))
+  setTimeout(() => {
+    cards.forEach(card =>{ 
+      card.classList.remove('flip')
+      card.addEventListener('click', flipCard)
+    })
+    currentTimer.start()
+  }, rangeTime)
+  
+}
+
+function checkMatch(){
+  let isMatch = firstClick.dataset.name === secondClick.dataset.name ? true : false
+  isMatch ? removeClick() : unFlipCard()
 }
 
 function removeClick(){
@@ -135,8 +142,8 @@ function configure(){
     case 'facil':
       rangeTime = 3000
       limitCard = 6
-      timerlimitFlip = 800 //tempo de espera para virar o card
-      timerLimit = 10
+      timerlimitFlip = 800 
+      timerLimit = 30
       widthStyle.style.width='540px'
       break
 
@@ -168,14 +175,18 @@ function configure(){
 }
 
 function reset(){
+
   currentTimer.stop()
+
+  widthStyle.style.width = '1100px'
+
+  timerStyle.style.color = 'white'
+  timerStyle.innerText = '00:00'
 
   button.disabled = false
 
   let cleamHtml = document.querySelector('#section-game')
   cleamHtml.innerText = ""
-
-  widthStyle.style.width='1100px'
 
   attemptCount = 0
   hitCounter = 0
@@ -185,8 +196,22 @@ function reset(){
 }
 
 function finalGame(){
-  
+
+  const attemps = attemptCount / 2
+
   document.getElementById('modal-final').classList.add("show-modal")
+
+  const attempsElement = document.getElementById('attemps')
+
+  const erros = document.getElementById('erros')
+  const hits = document.getElementById('hits')
+  const score = document.getElementById('score')
+
+  attempsElement.innerHTML='Tentativas = ' + attemps
+  hits.innerHTML = 'Acertos = ' + hitCounter
+  erros.innerHTML = 'Erros = ' + (attemps - hitCounter)
+  score.innerHTML = 'Pontuação = ' + (hitCounter /attemps * 1000)
+
   currentTimer.stop()
 
 }
@@ -209,6 +234,8 @@ function gameOver(){
 }
 
 function checkTimerLimit(){
+  if(currentTimer.time > (timerLimit/3)){timerStyle.style.color='yellow'}
+  if(currentTimer.time > (timerLimit * 0.6)){timerStyle.style.color='red'}
   if(currentTimer.time >= timerLimit)gameOver()
 
 }
