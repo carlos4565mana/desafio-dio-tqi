@@ -26,26 +26,25 @@ const cardsArray= [
 
 let locked = false
 let firstClick, secondClick
-let hitCounter = 0
-let attemptCount = 0
-let rangeTime,timerlimitFlip,limitCard
+let matchs = 0
+let rangeTime,limitCard
 let gameGrid
-let timerLimit
+let timerLimit,faseGame 
 
 const widthStyle = document.querySelector('.memory-game')
+const grid = document.querySelector('#section-game')
+const displayTimer = document.querySelector('#timer')
+let button = document.querySelector('.bt')
 
 const currentTimer = new Timer('#timer')
 
-const grid = document.querySelector('#section-game')
-const timerStyle = document.querySelector('#timer')
-
-let selectText = document.querySelector('#dificuldade')
-
-let button = document.querySelector('.bt-iniciar')
-
-function creatHtml(){
-
+const start = () => {
   button.disabled = true
+  faseGame = 1
+  faseConfig()
+}
+
+function createCards(){
 
   var game = cardsArray.slice(0, limitCard)
   gameGrid = game.concat(game).sort(() => 0.5 - Math.random());
@@ -76,7 +75,6 @@ function creatHtml(){
 }
 
 function flipCard(){
-  attemptCount++
 
   if(locked)return false
   this.classList.add('flip')
@@ -89,6 +87,32 @@ function flipCard(){
   checkMatch()
 }
 
+function checkMatch(){
+  let isMatch = firstClick.dataset.name === secondClick.dataset.name ? true : false
+  isMatch ? removeClick() : unFlipCard()
+}
+
+
+function removeClick(){
+
+  matchs++
+
+  firstClick.removeEventListener('click', flipCard)
+  secondClick.removeEventListener('click', flipCard)
+
+  if(matchs == (gameGrid.length/2)){
+    faseGame++
+   
+   faseGame > 6 ?  createModal('end') :  createModal('nextfase')
+  }
+
+  locked = false
+  firstClick = null
+  secondClick = null
+
+}
+
+
 function unFlipCard(){
   locked = true
   setTimeout(() => {
@@ -100,7 +124,7 @@ function unFlipCard(){
     firstClick = null
     secondClick = null
 
-  }, timerlimitFlip)
+  }, 800)
 }
 
 function flipUnflipAllCards(cards){
@@ -115,128 +139,137 @@ function flipUnflipAllCards(cards){
   
 }
 
-function checkMatch(){
-  let isMatch = firstClick.dataset.name === secondClick.dataset.name ? true : false
-  isMatch ? removeClick() : unFlipCard()
-}
+function faseConfig(){
 
-function removeClick(){
+  switch(faseGame){
+    case 1:
+        rangeTime = 3000
+        limitCard = 4
+        timerLimit = 20
+        widthStyle.style.width='540px'
+        break
 
-  hitCounter++
-  if(hitCounter == gameGrid.length/2){
-    finalGame()
+      case 2:
+        rangeTime = 6000
+        limitCard = 6
+        timerLimit = 25
+        widthStyle.style.width='540px'
+        break
+
+      case 3:
+        rangeTime = 7000
+        limitCard = 8
+        timerLimit = 35
+        widthStyle.style.width='540px'
+        break
+
+      case 4:
+        rangeTime = 8000
+        limitCard = 10
+        timerLimit = 50
+        widthStyle.style.width='630px'
+        break
+
+      case 5:
+        rangeTime = 9000
+        limitCard = 16
+        timerLimit = 100
+        widthStyle.style.width='940px'
+        break
+
+      case 6:
+        rangeTime = 10000
+        limitCard = 20
+        timerLimit = 120
+        widthStyle.style.width='1100px'
+        break
+
   }
-  firstClick.removeEventListener('click', flipCard)
-  secondClick.removeEventListener('click', flipCard)
 
-  locked = false
-  firstClick = null
-  secondClick = null
+  cleamCardBoard()
+
+  setTimeout(() => {
+
+    createCards()
+  }, 1000)
+  
+}
+
+const cleamCardBoard = () => {
+
+  currentTimer.stop()
+
+  displayTimer.style.color='white'
+  displayTimer.innerHTML='00:00'
+
+  const modal = document.getElementById('modal')
+  modal.classList.remove('show-modal')
+  modal.innerHTML = ''
+  let cleamHTML = document.getElementById("section-game");
+  cleamHTML.innerText = "";
+
+  matchs = 0;
 
 }
 
-function configure(){
 
-  let value = selectText.options[selectText.selectedIndex].value;
-  switch(value){
-    case 'facil':
-      rangeTime = 3000
-      limitCard = 6
-      timerlimitFlip = 800 
-      timerLimit = 30
-      widthStyle.style.width='540px'
-      break
+const createModal = (option) => {
 
-      case 'medio':
-      rangeTime = 6000
-      limitCard = 12
-      timerlimitFlip = 1000
-      timerLimit = 10
-      widthStyle.style.width='940px'
-      break
+  currentTimer.stop()
 
-      case 'dificil':
-      rangeTime = 7000
-      limitCard = 15
-      timerlimitFlip = 1300
-      timerLimit = 20
-      break
+  const modal = document.getElementById('modal')
+  modal.classList.add('show-modal')
+  const div = document.createElement('div')
+  div.classList.add('modal-content')
+  if(option === 'end'){
 
-      case 'expert':
-      rangeTime = 10000
-      limitCard = 20
-      timerlimitFlip= 1200
-      timerLimit = 30
-      break
-
-    default:
+    div.innerHTML= `
+      <span class="close-button" onclick="reset()">
+      &times;
+      </span>
+      <img src="imagens/star-trophy.png" class="modal__img">
+      <p id="tentativas">Parabéns voce chegou até o final !!!</p>
+      <button class="modal__button-link close-modal" onclick="reset()">Fechar</button>
+    `
   }
-  creatHtml()
+  if(option === 'gameover'){
+    
+    div.style.background = 'red'
+    div.innerHTML = `
+      <span class="close-button" onclick="reset()">
+      &times;
+      </span>
+      <h2>Game Over !!!</h2>
+    `
+  }
+  if(option === 'nextfase'){
+    div.innerHTML= `
+      <span class="close-button" onclick="faseConfig()">
+      &times;
+      </span>
+      <p id="tentativas">Parabens voce passou para fase ${faseGame} !!!</p>
+      <button class="modal__button-link close-modal"  onclick="faseConfig()" >Continuar</button>
+    `
+  }
+
+  modal.appendChild(div)
+  
 }
+
 
 function reset(){
-
-  currentTimer.stop()
-
-  widthStyle.style.width = '1100px'
-
-  timerStyle.style.color = 'white'
-  timerStyle.innerText = '00:00'
-
+  
+  cleamCardBoard()
+  faseGame =1
+  limitCard = 1
   button.disabled = false
 
-  let cleamHtml = document.querySelector('#section-game')
-  cleamHtml.innerText = ""
-
-  attemptCount = 0
-  hitCounter = 0
-  timerlimitFlip = 0
-  firstClick,secondClick = null
-
 }
 
-function finalGame(){
-
-  const attemps = attemptCount / 2
-
-  document.getElementById('modal-final').classList.add("show-modal")
-
-  const attempsElement = document.getElementById('attemps')
-
-  const erros = document.getElementById('erros')
-  const hits = document.getElementById('hits')
-  const score = document.getElementById('score')
-
-  attempsElement.innerHTML='Tentativas = ' + attemps
-  hits.innerHTML = 'Acertos = ' + hitCounter
-  erros.innerHTML = 'Erros = ' + (attemps - hitCounter)
-  score.innerHTML = 'Pontuação = ' + (hitCounter /attemps * 1000)
-
-  currentTimer.stop()
-
-}
-
-function closeModal(opc){
-  if(opc == 1){
-    document.getElementById('modal-final').classList.remove("show-modal")
-  }
-  if(opc == 2){
-    document.getElementById('modal-game-over').classList.remove("show-modal")
-  }
-  
-  reset()
-
-}
-
-function gameOver(){
-  document.getElementById('modal-game-over').classList.add("show-modal")
-  currentTimer.stop()
-}
-
-function checkTimerLimit(){
-  if(currentTimer.time > (timerLimit/3)){timerStyle.style.color='yellow'}
-  if(currentTimer.time > (timerLimit * 0.6)){timerStyle.style.color='red'}
-  if(currentTimer.time >= timerLimit)gameOver()
+function changdisplayTimer(){
+  if(currentTimer.time > (timerLimit/3)){displayTimer.style.color='yellow'}
+  if(currentTimer.time > (timerLimit * 0.6)){displayTimer.style.color='red'}
+  if(currentTimer.time >= timerLimit)createModal('gameover')
 
 }
 
@@ -256,7 +289,7 @@ function Timer(e){
       (minutes < 10 ? '0' : '') +minutes+
       ':'+
       (seconds < 10 ? '0' : '')+seconds
-      checkTimerLimit()
+      changdisplayTimer()
 
     }, 1000)
   }
